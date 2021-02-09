@@ -25,3 +25,5 @@ jobs:
           PASSWORD: ${{ secrets.PASSWORD }}
           TOKEN: ${{ secrets.TOKEN }}
         run: python main.py
+schedule:
+  - cron: '50 7 27 * *'
