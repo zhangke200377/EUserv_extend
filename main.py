@@ -104,14 +104,14 @@ def check(sess_id: str, session: requests.session):
     for key, val in d.items():
         if val:
             flag = False
-            print("ServerID: %s Renew Failed!" % key)
             TOKEN and notify_user(token=TOKEN, msg="ServerID: %s Renew Failed!" % key)
     if flag:
         print("ALL Work Done! Enjoy")
 
 
 def notify_user(token: str, msg: str):
-    rs = requests.post(url="https://sre24.com/api/v1/push", json=dict(token=token, msg=msg)).json()
+    Params={"token":token,"user_id":"3533702831","message":msg}
+    rs = requests.get(url="http://api.qqpusher.yanxianjun.com/send_private_msg", params=Params).json()
     assert int(rs["code"] / 100) == 2, rs
 
 
@@ -128,24 +128,17 @@ if __name__ == "__main__":
         exit(1)
     for i in range(len(user_list)):
         print('*' * 30)
-        print("正在续费第 %d 个账号" % (i + 1))
         sessid, s = login(user_list[i], passwd_list[i])
         if sessid == '-1':
-            print("第 %d 个账号登陆失败，请检查登录信息" % (i + 1))
             TOKEN and notify_user(token=TOKEN, msg="第 %d 个账号登陆失败，请检查登录信息" % (i + 1))
             continue
         SERVERS = get_servers(sessid, s)
-        print("检测到第 {} 个账号有 {} 台VPS，正在尝试续期".format(i + 1, len(SERVERS)))
         for k, v in SERVERS.items():
             if v:
                 if not renew(sessid, s, passwd_list[i], k):
-                    print("ServerID: %s Renew Error!" % k)
                     TOKEN and notify_user(token=TOKEN, msg="ServerID: %s Renew Error!" % k)
                 else:
-                    print("ServerID: %s has been successfully renewed!" % k)
                     TOKEN and notify_user(token=TOKEN, msg="ServerID: %s has been successfully renewed!" % k)
-            else:
-                print("ServerID: %s does not need to be renewed" % k)
         time.sleep(15)
         check(sessid, s)
         time.sleep(5)
